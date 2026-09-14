@@ -1,4 +1,4 @@
-"""scProteomicsBench: main benchmarking pipeline."""
+"""scp-bench: main benchmarking pipeline (5 models)."""
 import os
 import sys
 import json
@@ -18,27 +18,27 @@ from lightgbm import LGBMClassifier
 from src.preprocessing.normalize import preprocess_pipeline
 from src.preprocessing.splitter import split_cell_aware, get_cv_splitter
 from src.evaluation.metrics import compute_metrics
+from src.models.mlp import MLPClassifier
 
 
 def get_models():
-    """Return dict of models."""
     return {
-        "LogisticRegression": LogisticRegression(max_iter=1000,
-                                                   random_state=42,
-                                                   class_weight="balanced"),
-        "RandomForest": RandomForestClassifier(n_estimators=100,
-                                                random_state=42,
-                                                class_weight="balanced"),
-        "XGBoost": XGBClassifier(n_estimators=100, random_state=42,
-                                  eval_metric="logloss",
-                                  verbosity=0),
-        "LightGBM": LGBMClassifier(n_estimators=100, random_state=42,
-                                    verbose=-1),
+        "LogisticRegression": LogisticRegression(
+            max_iter=1000, random_state=42, class_weight="balanced"),
+        "RandomForest": RandomForestClassifier(
+            n_estimators=100, random_state=42, class_weight="balanced"),
+        "XGBoost": XGBClassifier(
+            n_estimators=100, random_state=42,
+            eval_metric="logloss", verbosity=0),
+        "LightGBM": LGBMClassifier(
+            n_estimators=100, random_state=42, verbose=-1),
+        "PyTorch MLP": MLPClassifier(
+            hidden_dims=(128, 64), epochs=100, lr=1e-3,
+            batch_size=64, random_state=42),
     }
 
 
 def run_benchmark(data_path, config=None):
-    """Run full benchmarking pipeline."""
     if config is None:
         config = {"test_size": 0.2, "cv_folds": 3}
 
@@ -50,21 +50,18 @@ def run_benchmark(data_path, config=None):
     y_raw = df[label_col].values
     X = df.drop(columns=[label_col]).values
 
-    # Encode labels to integers (0, 1, ...)
     le = LabelEncoder()
     y = le.fit_transform(y_raw)
-    print(f"   X: {X.shape}, y: {len(y)} samples, "
-          f"{len(le.classes_)} classes")
+    print(f"   X: {X.shape}, y: {len(y)} samples, {len(le.classes_)} classes")
     print(f"   Classes: {le.classes_.tolist()}")
 
     print("\n✂️  Leakage-safe split...")
     X_train, X_test, y_train, y_test = split_cell_aware(
-        X, y, test_size=config["test_size"]
-    )
+        X, y, test_size=config["test_size"])
 
     print("🔧 Preprocessing (KNN impute -> CLR -> scale)...")
-    X_train, X_test = preprocess_pipeline(X_train, X_test,
-                                            impute=True, scale=True)
+    X_train, X_test = preprocess_pipeline(
+        X_train, X_test, impute=True, scale=True)
 
     cv = get_cv_splitter(n_splits=config["cv_folds"])
     results = {}
@@ -72,17 +69,13 @@ def run_benchmark(data_path, config=None):
     for name, model in get_models().items():
         print(f"\n🔬 {name}")
         try:
-            # CV
             cv_scores = []
             for tr, va in cv.split(X_train, y_train):
                 m = type(model)(**model.get_params())
                 m.fit(X_train[tr], y_train[tr])
                 pred = m.predict(X_train[va])
-                cv_scores.append(
-                    compute_metrics(y_train[va], pred)["f1_macro"]
-                )
+                cv_scores.append(compute_metrics(y_train[va], pred)["f1_macro"])
 
-            # Train final
             tracemalloc.start()
             t0 = time.time()
             model.fit(X_train, y_train)
@@ -90,7 +83,6 @@ def run_benchmark(data_path, config=None):
             _, peak = tracemalloc.get_traced_memory()
             tracemalloc.stop()
 
-            # Test
             y_pred = model.predict(X_test)
             y_proba = (model.predict_proba(X_test)
                        if hasattr(model, "predict_proba") else None)
@@ -103,11 +95,9 @@ def run_benchmark(data_path, config=None):
                 "train_time_sec": float(train_time),
                 "peak_memory_mb": float(peak / 1024 / 1024),
             }
-            print(f"   CV F1: {np.mean(cv_scores):.4f} ± "
-                  f"{np.std(cv_scores):.4f}")
+            print(f"   CV F1: {np.mean(cv_scores):.4f} ± {np.std(cv_scores):.4f}")
             print(f"   Test accuracy: {test_metrics['accuracy']:.4f}")
-            print(f"   Time: {train_time:.2f}s | "
-                  f"Memory: {peak/1024/1024:.2f} MB")
+            print(f"   Time: {train_time:.2f}s | Memory: {peak/1024/1024:.2f} MB")
         except Exception as e:
             print(f"   ❌ Failed: {e}")
             results[name] = {"error": str(e)}
@@ -117,7 +107,7 @@ def run_benchmark(data_path, config=None):
 
 if __name__ == "__main__":
     data_path = (sys.argv[1] if len(sys.argv) > 1
-                 else "data/processed/dataset.csv")
+                 else "data/processed/scope2_real.csv")
     results = run_benchmark(data_path)
 
     os.makedirs("results", exist_ok=True)
