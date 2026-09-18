@@ -11,7 +11,7 @@ with open("requirements.txt", "r") as f:
 setup(
     name="scp-bench",
     version="0.1.0",
-    author="AIResearcher20",
+    author="Sepideh Moafi",
     description="Reproducible ML benchmarking for single-cell proteomics",
     long_description=long_description,
     long_description_content_type="text/markdown",
