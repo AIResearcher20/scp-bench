@@ -8,7 +8,7 @@
 **Repository:** Consolidated in 2026 from earlier development.  
 **License:** MIT  
 **Author:** Sepideh Moafi 
-
+---
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
 ![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange)
