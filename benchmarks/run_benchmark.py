@@ -42,7 +42,7 @@ def run_benchmark(data_path, config=None):
     if config is None:
         config = {"test_size": 0.2, "cv_folds": 3}
 
-    print(f"📥 Loading data: {data_path}")
+    print(f"Loading data: {data_path}")
     df = pd.read_csv(data_path)
     print(f"   Shape: {df.shape}")
 
@@ -55,11 +55,11 @@ def run_benchmark(data_path, config=None):
     print(f"   X: {X.shape}, y: {len(y)} samples, {len(le.classes_)} classes")
     print(f"   Classes: {le.classes_.tolist()}")
 
-    print("\n✂️  Leakage-safe split...")
+    print("\nLeakage-safe split...")
     X_train, X_test, y_train, y_test = split_cell_aware(
         X, y, test_size=config["test_size"])
 
-    print("🔧 Preprocessing (KNN impute -> CLR -> scale)...")
+    print("Preprocessing (KNN impute -> CLR -> scale)...")
     X_train, X_test = preprocess_pipeline(
         X_train, X_test, impute=True, scale=True)
 
@@ -67,7 +67,7 @@ def run_benchmark(data_path, config=None):
     results = {}
 
     for name, model in get_models().items():
-        print(f"\n🔬 {name}")
+        print(f"\n{name}")
         try:
             cv_scores = []
             for tr, va in cv.split(X_train, y_train):
@@ -99,7 +99,7 @@ def run_benchmark(data_path, config=None):
             print(f"   Test accuracy: {test_metrics['accuracy']:.4f}")
             print(f"   Time: {train_time:.2f}s | Memory: {peak/1024/1024:.2f} MB")
         except Exception as e:
-            print(f"   ❌ Failed: {e}")
+            print(f"   Failed: {e}")
             results[name] = {"error": str(e)}
 
     return results
@@ -113,4 +113,4 @@ if __name__ == "__main__":
     os.makedirs("results", exist_ok=True)
     with open("results/benchmark_results.json", "w") as f:
         json.dump(results, f, indent=2)
-    print("\n✅ Results saved to results/benchmark_results.json")
+    print("\nResults saved to results/benchmark_results.json")
