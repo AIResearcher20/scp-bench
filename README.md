@@ -1,20 +1,17 @@
-
 # scp-bench
 
-**A Reproducible Benchmarking Framework for Single-Cell Proteomics Classification**
----
-**Project Year:** 2025  
-**Repository:** Consolidated in 2026 from earlier development.  
-**License:** MIT  
-**Author:** Sepideh Moafi 
+## A Reproducible Benchmarking Framework for Single-Cell Proteomics Classification
+
+**Project Year:** 2025
+**Repository:** Consolidated in 2026 from earlier development
+**License:** MIT
+**Author:** Sepideh Moafi
 
 ![Python](https://img.shields.io/badge/Python-3.10+-blue)
-![scikit-learn](https://img.shields.io/badge/scikit--learn-1.3+-orange)
-![XGBoost](https://img.shields.io/badge/XGBoost-2.0+-red)
-![LightGBM](https://img.shields.io/badge/LightGBM-4.0+-green)
-![PyTorch](https://img.shields.io/badge/PyTorch-2.0+-ee4c2c)
 ![CI](https://img.shields.io/badge/CI-GitHub%20Actions-success)
 ![License](https://img.shields.io/badge/License-MIT-yellow)
+
+---
 
 ## Overview
 
@@ -22,17 +19,21 @@ scp-bench is an open-source benchmarking framework for evaluating machine-learni
 
 Benchmarked on the SCoPE2 dataset (Specht et al., Genome Biology 2021) from the Bioconductor scpdata package for Macrophage vs. Monocyte classification.
 
+---
+
 ## Key Features
 
 - Leakage-safe preprocessing: KNN imputation and CLR normalization fitted only on training data
 - Cell-aware stratified cross-validation (StratifiedKFold)
-- 5 machine-learning models: Logistic Regression, Random Forest, XGBoost, LightGBM, PyTorch MLP
-- 8 evaluation metrics: accuracy, balanced accuracy, precision, recall, F1-macro, F1-micro, AUROC, confusion matrix
+- Five machine-learning models: Logistic Regression, Random Forest, XGBoost, LightGBM, PyTorch MLP
+- Eight evaluation metrics: accuracy, balanced accuracy, precision, recall, F1-macro, F1-micro, AUROC, confusion matrix
 - Computational profiling: runtime and peak memory
 - Automated JSON reporting
 - CI/CD with GitHub Actions (pytest + Docker build)
 - Reproducible via Dockerfile
 - pip-installable package
+
+---
 
 ## Dataset
 
@@ -43,6 +44,8 @@ Benchmarked on the SCoPE2 dataset (Specht et al., Genome Biology 2021) from the 
 | Proteins | 3,042 |
 | Cells | 1,490 |
 | Classes | Macrophage (1,096), Monocyte (394) |
+
+---
 
 ## Benchmark Results
 
@@ -58,19 +61,20 @@ Best model: LightGBM — 98.32% test accuracy.
 
 ### Visualizations
 
-![Test Accuracy](results/figures/01_accuracy.png)
+The benchmark produces eight figures in `results/figures/`:
 
-![CV F1](results/figures/02_cv_f1.png)
+- Test accuracy by model
+- Cross-validated F1 by model
+- F1 macro by model
+- Training runtime by model
+- Peak memory by model
+- Confusion matrices
+- Summary heatmap
+- Feature importance
 
-![F1 Macro](results/figures/03_f1_macro.png)
+Exploratory analyses are available in `notebooks/`.
 
-![Runtime](results/figures/04_runtime.png)
-
-![Memory](results/figures/05_memory.png)
-
-![Confusion Matrices](results/figures/06_confusion_matrices.png)
-
-![Summary Heatmap](results/figures/07_summary_heatmap.png)
+---
 
 ## Scientific Validation
 
@@ -85,39 +89,31 @@ Best model: LightGBM — 98.32% test accuracy.
 
 Top protein: Vimentin (P08670), a known macrophage activation marker.
 
-![Feature Importance](results/figures/08_feature_importance.png)
+---
 
 ## Quick Start
-
-```
 
 git clone https://github.com/AIResearcher20/scp-bench.git
 cd scp-bench
 pip install -r requirements.txt
 python benchmarks/run_benchmark.py data/processed/scope2_real.csv
 
-```
+---
 
 ## Docker
-
-```
 
 docker build -t scp-bench .
 docker run scp-bench
 
-```
+---
 
 ## Testing
 
-```
-
 pytest tests/ -v --cov=src
 
-```
+---
 
 ## Project Structure
-
-```
 
 scp-bench/
 ├── src/
@@ -135,17 +131,20 @@ scp-bench/
 ├── setup.py
 └── requirements.txt
 
-```
+---
 
 ## Technologies
 
 Python · scikit-learn · XGBoost · LightGBM · PyTorch · pandas · NumPy · matplotlib · seaborn · pytest · GitHub Actions · Docker
 
+---
+
 ## Citation
 
 Specht H, Emmott E, Petelski AA, et al. Single-cell proteomic and transcriptomic analysis of macrophage heterogeneity using SCoPE2. Genome Biology 22, 50 (2021).
 
+---
+
 ## License
 
 MIT
-```
